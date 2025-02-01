@@ -4,6 +4,15 @@ services:
     restart: unless-stopped
     stop_grace_period: 60s
 
+    deploy:
+      mode: replicated
+      replicas: 4
+
+    # --- ONLY ENABLE IF ON LINUX AND YOU HAVE ENOUGH RAM -----------------------
+    # This section configures a temporary filesystem (tmpfs) for the work folder.
+    #tmpfs:
+    #  - /home/ubuntu/_work:uid=1000,gid=1000,mode=0755
+
     environment:
       TZ:           "Europe/Lisbon"
       ORGANIZATION: "MY_FANCY_ORG_NAME"
