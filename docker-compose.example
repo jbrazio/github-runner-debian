@@ -11,7 +11,7 @@ services:
     # --- ONLY ENABLE IF ON LINUX AND YOU HAVE ENOUGH RAM -----------------------
     # This section configures a temporary filesystem (tmpfs) for the work folder.
     #tmpfs:
-    #  - /home/ubuntu/_work:uid=1000,gid=1000,mode=0755
+    #  - /home/debian/_work:uid=1000,gid=1000,mode=0755
 
     environment:
       TZ:           "Europe/Lisbon"
