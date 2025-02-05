@@ -67,15 +67,24 @@ else
       --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
 fi
 
+# Set up traps for signals
 cleanup() {
-    echo "Removing runner..."
+    echo "Removing runner.."
     ./config.sh remove --token \${RUNNER_TOKEN}
 }
 
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
-./run.sh & wait $!
+# Start the background process
+./run.sh &
+
+# Wait for the background process to finish
+RUNNER_PID=\$!
+wait \${RUNNER_PID}
+
+# If we reach this point, the background process has exited
+cleanup
 EOF
 
 RUN chmod +x /docker-entrypoint.sh \
