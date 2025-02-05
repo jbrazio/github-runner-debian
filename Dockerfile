@@ -60,16 +60,17 @@ fi
 cd /home/debian
 
 if [ -z "\${RUNNER_LABEL}" ]; then
-    /home/debian/bin/config.sh --unattended
+    ./config.sh --unattended \
       --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
 else
-    /home/debian/bin/config.sh --unattended
+    ./config.sh --unattended \
       --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
 fi
 
 # Set up traps for signals
 cleanup() {
     echo "Removing runner.."
+    cd /home/debian
     ./config.sh remove --token \${RUNNER_TOKEN}
 }
 
