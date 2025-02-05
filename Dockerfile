@@ -47,6 +47,7 @@ set -e
 
 ORGANIZATION=\${ORGANIZATION}
 ACCESS_TOKEN=\${ACCESS_TOKEN}
+RUNNER_LABEL=\${RUNNER_LABEL}
 
 RUNNER_TOKEN=\$(curl -sX POST -H "Authorization: token \${ACCESS_TOKEN}" \
 	https://api.github.com/orgs/\${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
@@ -57,7 +58,14 @@ if [ -z "\${RUNNER_TOKEN}" ] || [ "\${RUNNER_TOKEN}" = "null" ]; then
 fi
 
 cd /home/debian
-./config.sh --unattended --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
+
+if [ -z "\${RUNNER_LABEL}" ]; then
+    /home/debian/bin/config.sh --unattended
+      --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
+else
+    /home/debian/bin/config.sh --unattended
+      --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
+fi
 
 cleanup() {
     echo "Removing runner..."

@@ -17,6 +17,7 @@ services:
       TZ:           "Europe/Lisbon"
       ORGANIZATION: "MY_FANCY_ORG_NAME"
       ACCESS_TOKEN: "SUPER_SECRET_STUFF"
+      RUNNER_LABEL: "label1,label2,label3"
 
 networks:
   default:
