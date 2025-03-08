@@ -74,8 +74,10 @@ cleanup() {
     ./config.sh remove --token \${RUNNER_TOKEN}
 }
 
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
+trap 'cleanup; exit 130' INT    # Catch SIGINT (Ctrl+C)
+trap 'cleanup; exit 143' TERM   # Catch SIGTERM (default signal on docker stop)
+trap 'cleanup; exit 131' QUIT   # Catch SIGQUIT (Ctrl+\)
+trap 'cleanup; exit 141' HUP    # Catch SIGHUP (hangup signal)
 
 # Start the background process
 ./run.sh &
