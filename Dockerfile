@@ -18,7 +18,7 @@ RUN useradd -ms /usr/sbin/nologin debian
 
 # add additional packages
 RUN apt-get install -y --no-install-recommends \
-  build-essential ca-certificates curl curl git gh gnupg jq libffi-dev libssl-dev python3 python3-dev python3-pip python3-venv
+  build-essential nano ca-certificates curl curl git gh gnupg jq libffi-dev libssl-dev python3 python3-dev python3-pip python3-venv
 
 # https://github.com/actions/runner/releases
 ARG RUNNER_VERSION="2.322.0"
@@ -43,11 +43,33 @@ RUN apt-get clean \
 # prepare the entrypoint script
 RUN cat >> /docker-entrypoint.sh <<EOF
 #!/bin/bash
-set -e
+set -e pipefail
+
+# Set up traps for signals
+trap 'cleanup; exit 130' INT    # Catch SIGINT (Ctrl+C)
+trap 'cleanup; exit 131' QUIT   # Catch SIGQUIT (Ctrl+\)
+trap 'cleanup; exit 141' HUP    # Catch SIGHUP (hangup signal)
+trap 'cleanup; exit 143' TERM   # Catch SIGTERM (terminate signal)
 
 ORGANIZATION=\${ORGANIZATION}
 ACCESS_TOKEN=\${ACCESS_TOKEN}
 RUNNER_LABEL=\${RUNNER_LABEL}
+
+cleanup() {
+    cd /home/debian
+    ./config.sh remove --token \${RUNNER_TOKEN}
+}
+
+config() {
+  cd /home/debian
+  if [ -z "\${RUNNER_LABEL}" ]; then
+      ./config.sh --unattended --replace true \
+        --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
+  else
+      ./config.sh --unattended --replace true \
+        --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
+  fi
+}
 
 RUNNER_TOKEN=\$(curl -sX POST -H "Authorization: token \${ACCESS_TOKEN}" \
 	https://api.github.com/orgs/\${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
@@ -57,27 +79,8 @@ if [ -z "\${RUNNER_TOKEN}" ] || [ "\${RUNNER_TOKEN}" = "null" ]; then
     exit 1
 fi
 
-cd /home/debian
-
-if [ -z "\${RUNNER_LABEL}" ]; then
-    ./config.sh --unattended \
-      --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
-else
-    ./config.sh --unattended \
-      --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
-fi
-
-# Set up traps for signals
-cleanup() {
-    echo "Removing runner.."
-    cd /home/debian
-    ./config.sh remove --token \${RUNNER_TOKEN}
-}
-
-trap 'cleanup; exit 130' INT    # Catch SIGINT (Ctrl+C)
-trap 'cleanup; exit 143' TERM   # Catch SIGTERM (default signal on docker stop)
-trap 'cleanup; exit 131' QUIT   # Catch SIGQUIT (Ctrl+\)
-trap 'cleanup; exit 141' HUP    # Catch SIGHUP (hangup signal)
+# Configure the runner
+config
 
 # Start the background process
 ./run.sh &
