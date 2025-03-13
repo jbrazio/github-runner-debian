@@ -89,6 +89,9 @@ get_token() {
 echo ">> Executing get_token procedure.."
 RUNNER_TOKEN=\$(get_token)
 
+# Cleanup stale runners
+cleanup
+
 # Configure the runner
 config
 
