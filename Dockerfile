@@ -56,28 +56,39 @@ ACCESS_TOKEN=\${ACCESS_TOKEN}
 RUNNER_LABEL=\${RUNNER_LABEL}
 
 cleanup() {
-    cd /home/debian
-    ./config.sh remove --token \${RUNNER_TOKEN}
+  cd /home/debian
+  echo ">> Executing cleanup procedure.."
+    
+  ./config.sh remove --token \${RUNNER_TOKEN}
 }
 
 config() {
   cd /home/debian
+  echo ">> Executing config procedure.."
+  
   if [ -z "\${RUNNER_LABEL}" ]; then
-      ./config.sh --unattended --replace true \
-        --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
+    ./config.sh --unattended --replace true --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN}
   else
-      ./config.sh --unattended --replace true \
-        --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
+    ./config.sh --unattended --replace true --url https://github.com/\${ORGANIZATION} --token \${RUNNER_TOKEN} --labels \${RUNNER_LABEL}
   fi
 }
 
-RUNNER_TOKEN=\$(curl -sX POST -H "Authorization: token \${ACCESS_TOKEN}" \
-	https://api.github.com/orgs/\${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
+get_token() {
+  echo ">> Executing get_token procedure.."
+  
+  RUNNER_TOKEN=\$(curl -sX POST -H "Authorization: token \${ACCESS_TOKEN}" \
+    https://api.github.com/orgs/\${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
 
-if [ -z "\${RUNNER_TOKEN}" ] || [ "\${RUNNER_TOKEN}" = "null" ]; then
+  if [ -z "\${RUNNER_TOKEN}" ] || [ "\${RUNNER_TOKEN}" = "null" ]; then
     echo "Failed to retrieve runner token. Exiting."
     exit 1
-fi
+  fi
+  
+  echo "\${RUNNER_TOKEN}"
+}
+
+# Set global token
+RUNNER_TOKEN=\$(get_token)
 
 # Configure the runner
 config
