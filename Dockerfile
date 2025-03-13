@@ -74,8 +74,6 @@ config() {
 }
 
 get_token() {
-  echo ">> Executing get_token procedure.."
-  
   RUNNER_TOKEN=\$(curl -sX POST -H "Authorization: token \${ACCESS_TOKEN}" \
     https://api.github.com/orgs/\${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
 
@@ -88,6 +86,7 @@ get_token() {
 }
 
 # Set global token
+echo ">> Executing get_token procedure.."
 RUNNER_TOKEN=\$(get_token)
 
 # Configure the runner
