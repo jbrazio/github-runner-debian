@@ -12,13 +12,9 @@ RUN apt-get update -y && apt-get upgrade -y
 # add a standard account
 RUN useradd -ms /usr/sbin/nologin debian
 
-# # install sudo and allow the debian user to run sudo commands without a password
-# RUN apt-get install -y --no-install-recommends sudo \
-#   && echo "debian ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/debian \
-
 # add additional packages
 RUN apt-get install -y --no-install-recommends \
-  build-essential nano ca-certificates curl curl git gh gnupg jq libffi-dev libssl-dev python3 python3-dev python3-pip python3-venv
+  build-essential ca-certificates curl git gh gnupg jq libffi-dev libssl-dev python3 python3-dev python3-pip python3-venv unzip
 
 # https://github.com/actions/runner/releases
 ARG RUNNER_VERSION="2.322.0"
@@ -29,12 +25,6 @@ RUN curl -o /tmp/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://gi
   && echo "${RUNNER_CHECKSUM}  /tmp/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" | shasum -a 256 -c \
   && tar xzf /tmp/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -C /home/debian \
   && /home/debian/bin/installdependencies.sh
-
-# # download and install nodejs
-# ENV NODE_VERSION=22.x
-# RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
-#   && apt-get install -y --no-install-recommends nodejs \
-#   && node --version && npm --version
 
 # remove build dependencies and unnecessary files
 RUN apt-get clean \
