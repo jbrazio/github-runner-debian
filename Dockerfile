@@ -17,8 +17,8 @@ RUN apt-get install -y --no-install-recommends \
   build-essential ca-certificates curl git gh gnupg jq libffi-dev libssl-dev python3 python3-dev python3-pip python3-venv unzip
 
 # https://github.com/actions/runner/releases
-ARG RUNNER_VERSION="2.322.0"
-ARG RUNNER_CHECKSUM="b13b784808359f31bc79b08a191f5f83757852957dd8fe3dbfcc38202ccf5768"
+ARG RUNNER_VERSION="2.329.0"
+ARG RUNNER_CHECKSUM="194f1e1e4bd02f80b7e9633fc546084d8d4e19f3928a324d512ea53430102e1d"
 
 # download and unzip the github actions runner
 RUN curl -o /tmp/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
